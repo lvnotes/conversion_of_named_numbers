@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Перетворення іменованих чисел — тренажер, 4 клас</title>
+<style>
+:root{
+  --red:#c8372d; --gold:#f3c76a; --gold2:#fdeec4; --ink:#2b2b33; --muted:#6b6b78;
+  --ok:#2e9e5b; --okbg:#e4f6eb; --bad:#d64545; --badbg:#fdeaea; --blue:#3a7bd5; --bluebg:#e8f0fc;
+  --card:#ffffff; --bg:#fdf8ee; --line:#eadfc6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:18px;line-height:1.45}
+.wrap{max-width:880px;margin:0 auto;padding:0 14px 70px}
+button{font:inherit;cursor:pointer}
+svg{flex:none}
+
+/* шапка */
+.hero{text-align:center;padding:22px 0 8px}
+.band{display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(90deg,#f7d98f,var(--gold),#f7d98f);border-radius:999px;padding:6px 18px;margin:0 auto 10px;max-width:520px}
+.band b{color:var(--red);font-size:20px;letter-spacing:.5px}
+h1{color:var(--red);font-size:clamp(24px,5vw,34px);margin:6px 0 2px}
+.sub{color:var(--muted);margin:0 0 14px}
+
+/* шпаргалка */
+details.cheat{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px 16px;margin:8px 0 16px}
+details.cheat summary{cursor:pointer;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:8px;list-style:none}
+details.cheat summary::-webkit-details-marker{display:none}
+details.cheat summary::after{content:"показати";margin-left:auto;font-weight:400;font-size:15px;color:var(--muted)}
+details.cheat[open] summary::after{content:"сховати"}
+.cheatgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.cheatgrid div{background:var(--gold2);border-radius:12px;padding:10px 14px}
+.cheatgrid h4{margin:0 0 6px;color:var(--red)}
+.cheatgrid p{margin:2px 0;font-size:17px}
+
+/* прогрес */
+.progress{position:sticky;top:0;z-index:10;background:rgba(253,248,238,.96);backdrop-filter:blur(4px);padding:10px 0 10px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.ptext{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:16px;margin-bottom:6px}
+.ptext .okc{color:var(--ok);font-weight:700}
+.ptext .badc{color:var(--bad);font-weight:700}
+.pbar{height:12px;background:#eee4cf;border-radius:999px;overflow:hidden;display:flex}
+.pbar i{display:block;height:100%;transition:width .35s}
+.pbar .pok{background:var(--ok)} .pbar .pbad{background:var(--bad)}
+
+/* секції */
+section.sec{margin-top:26px}
+section.sec h2{display:flex;align-items:center;gap:10px;font-size:22px;margin:0 0 4px}
+.sn{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;font-size:18px}
+.instr{color:var(--muted);margin:0 0 12px}
+
+/* картка завдання */
+.card{background:var(--card);border:2px solid var(--line);border-left-width:8px;border-radius:16px;padding:14px 16px;margin:12px 0;transition:border-color .25s,background .25s}
+.card.ok{border-color:var(--ok);background:#fbfefc}
+.card.bad{border-color:var(--bad);background:#fffbfb}
+.chead{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:15px;margin-bottom:6px}
+.chead .num{font-weight:700;color:var(--ink)}
+.chead .hard{display:inline-flex;align-items:center;gap:4px;color:#b7791f;font-weight:600}
+.q{font-size:21px;font-weight:600;margin:2px 0 10px}
+.q.small{font-size:18px;font-weight:500}
+.ptext2{margin:2px 0 10px}
+
+/* тест */
+.opts{display:flex;flex-wrap:wrap;gap:10px}
+.opt{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #e3dccb;border-radius:999px;padding:8px 18px 8px 8px;font-size:19px;color:var(--ink);transition:transform .1s,background .2s}
+.opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--gold)}
+.opt:disabled{cursor:default;opacity:1}
+.let{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;font-weight:700;color:#5a4a2a}
+.l0{background:#f6cf6e}.l1{background:#fbe3b4}.l2{background:#f5cfc2}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.opt.right{border-color:var(--ok);border-style:dashed}
+
+/* поля */
+.line{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:21px}
+.expr{font-weight:600;white-space:nowrap}
+.eq{font-weight:700;color:var(--muted)}
+.grp{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.fld{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+input.num{width:6.2em;font:inherit;font-size:20px;text-align:center;padding:6px 6px;border:2px solid #d9cfb8;border-radius:10px;background:#fffdf7;color:var(--ink)}
+input.num:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--bluebg)}
+input.num.ok{border-color:var(--ok);background:var(--okbg);color:#1d6b3d;font-weight:700}
+input.num.bad{border-color:var(--bad);background:var(--badbg);color:#9b2c2c;font-weight:700}
+input.num:disabled{opacity:1}
+.u{color:var(--ink)}
+.prow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}
+.prow .lab{flex:1 1 240px}
+
+/* порівняння */
+.cmp{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:22px;margin-bottom:10px}
+.sign{display:inline-grid;place-items:center;width:46px;height:46px;border:2px dashed #cbbf9f;border-radius:12px;font-weight:700;font-size:24px;color:var(--muted)}
+.sign.ok{border:2px solid var(--ok);background:var(--okbg);color:var(--ok)}
+.sign.bad{border:2px solid var(--bad);background:var(--badbg);color:var(--bad)}
+.signs{display:flex;gap:10px}
+.signs button{width:58px;height:48px;border-radius:12px;border:2px solid #d9cfb8;background:#fff;font-size:24px;font-weight:700;color:var(--ink)}
+.signs button:hover:not(:disabled){border-color:var(--gold);background:var(--gold2)}
+.signs button:disabled{opacity:.55;cursor:default}
+
+/* упорядкування */
+.pool,.slots{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.pool{min-height:52px}
+.chip{background:var(--gold2);border:2px solid var(--gold);border-radius:12px;padding:10px 16px;font-size:19px;font-weight:600;color:var(--ink)}
+.chip:hover{transform:translateY(-2px)}
+.slot{display:flex;align-items:center;gap:8px;min-width:150px;min-height:52px;border:2px dashed #cbbf9f;border-radius:12px;background:#fff;padding:8px 12px;font-size:19px;font-weight:600;color:var(--ink)}
+.slot.filled{border-style:solid;border-color:var(--blue);background:var(--bluebg)}
+.slot.ok{border-color:var(--ok);background:var(--okbg)}
+.slot.bad{border-color:var(--bad);background:var(--badbg)}
+.pos{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#e9e2d0;font-size:14px;color:var(--muted)}
+.slotlab{font-size:15px;color:var(--muted);margin-top:4px}
+
+/* керування */
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+.btn{border:none;border-radius:12px;padding:10px 20px;font-weight:700;background:var(--blue);color:#fff}
+.btn:hover:not(:disabled){filter:brightness(1.07)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:transparent;color:var(--blue);border:2px solid var(--blue);padding:8px 16px;display:inline-flex;align-items:center;gap:6px}
+.btn.big{font-size:20px;padding:14px 26px;border-radius:14px}
+.btn.red{background:var(--red)}
+.note{color:var(--bad);font-size:16px}
+.hintbox{background:var(--gold2);border-radius:12px;padding:8px 14px;margin-top:10px;font-size:17px}
+.fb{margin-top:10px}
+.fb .good{display:flex;align-items:center;gap:8px;color:var(--ok);font-weight:700}
+.fb .wrong{display:flex;align-items:center;gap:8px;color:var(--bad);font-weight:700}
+.why{background:#f6f3ec;border-radius:12px;padding:10px 14px;margin-top:8px;font-size:17px}
+.why b.t{color:var(--ink)}
+.split b{color:var(--red);background:var(--gold2);border-radius:4px;padding:0 2px}
+
+/* підсумок */
+#summary{margin-top:30px;background:var(--card);border:3px solid var(--gold);border-radius:22px;padding:22px 20px;text-align:center}
+#summary h2{color:var(--red);margin:0 0 6px;font-size:28px}
+.stars{display:flex;justify-content:center;gap:8px;margin:8px 0}
+.score{font-size:44px;font-weight:800;margin:4px 0}
+.score small{font-size:22px;color:var(--muted);font-weight:600}
+.msg{font-size:20px;margin:6px 0 16px}
+.srows{text-align:left;max-width:560px;margin:0 auto 18px}
+.srow{display:grid;grid-template-columns:1fr 70px;gap:4px 12px;align-items:center;margin:10px 0}
+.srow .bar{grid-column:1 / -1;height:10px;background:#eee4cf;border-radius:999px;overflow:hidden}
+.srow .bar i{display:block;height:100%;background:var(--ok)}
+.srow .val{text-align:right;font-weight:700}
+.skip{color:var(--muted);font-size:16px}
+.bottom{text-align:center;margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.foot{color:var(--muted);font-size:14px;text-align:center;margin-top:30px}
+
+/* режими */
+[hidden]{display:none!important}
+.modes{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
+.mode{border:2px solid var(--blue);background:#fff;color:var(--blue);border-radius:999px;padding:8px 18px;font-weight:700}
+.mode.on{background:var(--blue);color:#fff}
+.warnbar{background:var(--badbg);border:2px solid var(--bad);border-radius:14px;padding:10px 16px;margin:0 0 14px}
+.warnbar p{margin:0 0 8px;font-weight:600}
+.regbox{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px 20px;margin-bottom:16px}
+.regbox h2{margin:0 0 6px;color:var(--red)}
+.note2{margin:6px 0 10px;padding-left:22px}.note2 li{margin:4px 0}
+.regbox label{display:block;font-weight:700;margin:12px 0 0}
+.regbox input{display:block;width:100%;max-width:380px;font:inherit;padding:10px;border:2px solid #d9cfb8;border-radius:10px;margin-top:4px;background:#fffdf7;color:var(--ink)}
+.regbox input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--bluebg)}
+.testhint{background:var(--bluebg);border-left:6px solid var(--blue);border-radius:6px 14px 14px 6px;padding:10px 14px;margin:6px 0 0}
+.pbar.test .pok{background:var(--blue)}
+.opt.sel{background:var(--bluebg);border-color:var(--blue)}
+.signs button.sel{background:var(--bluebg);border-color:var(--blue);color:var(--blue)}
+.sign.sel{border:2px solid var(--blue);background:var(--bluebg);color:var(--blue)}
+.who{font-size:20px;font-weight:700;margin:0 0 4px}
+.ss{font-weight:600}
+
+@media (max-width:520px){
+  body{font-size:17px}
+  .q{font-size:19px}
+  .line,.cmp{font-size:19px}
+  input.num{width:5.4em;font-size:18px}
+  .opt{font-size:17px;padding:6px 14px 6px 6px}
+  .slot{min-width:130px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="band" id="bandIcons"><b id="bandTitle">Тренажер</b></div>
+    <h1>Перетворення іменованих чисел</h1>
+    <p class="sub">Математика · 4 клас · довжина, маса, гроші</p>
+  </header>
+
+  <div class="modes">
+    <button class="mode on" id="mTrain">Тренажер</button>
+    <button class="mode" id="mTest">Діагностувальна робота</button>
+  </div>
+  <div class="warnbar" id="leaveWarn" hidden>
+    <p>Роботу буде перервано, а пройти її ще раз не вдасться. Вийти?</p>
+    <button class="btn red" id="leaveYes">Так, вийти</button> <button class="btn ghost" id="leaveNo">Ні, продовжити роботу</button>
+  </div>
+
+  <section class="regbox" id="reg" hidden>
+    <h2>Діагностувальна робота</h2>
+    <div id="regform">
+      <ul class="note2">
+        <li>Правильні відповіді <b>не показуються одразу</b>: ти побачиш їх після завершення роботи.</li>
+        <li>Обрану відповідь (вона підсвічується <b>синім</b>) можна <b>змінити</b>, поки не натиснеш «Завершити роботу».</li>
+        <li>Підказок і таблиці одиниць у цьому режимі немає.</li>
+        <li>Пройти роботу можна <b>лише один раз</b>.</li>
+        <li>Результат автоматично надсилається вчителю.</li>
+      </ul>
+      <label>Прізвище<input id="sn" maxlength="30" autocomplete="off"></label>
+      <label>Ім’я<input id="nm" maxlength="30" autocomplete="off"></label>
+      <label>Клас<input id="cls" maxlength="20" autocomplete="off" placeholder="наприклад, 4-А"></label>
+      <p id="regerr" class="note"></p>
+      <button class="btn big" id="startBtn">Почати</button>
+    </div>
+    <div id="blocked" hidden>
+      <p>Діагностувальну роботу на цьому пристрої вже розпочато або виконано. Пройти її можна лише один раз.</p>
+      <p class="ss"></p>
+    </div>
+  </section>
+
+  <div id="work">
+  <details class="cheat" id="cheat">
+    <summary id="cheatSum">Пригадай: таблиця одиниць вимірювання</summary>
+    <div class="cheatgrid">
+      <div><h4>Довжина</h4>
+        <p>1 см = 10 мм</p><p>1 дм = 10 см = 100 мм</p><p>1 м = 10 дм = 100 см</p><p>1 м = 1&nbsp;000 мм</p><p>1 км = 1&nbsp;000 м</p></div>
+      <div><h4>Маса</h4>
+        <p>1 кг = 1&nbsp;000 г</p><p>1 ц = 100 кг</p><p>1 т = 10 ц</p><p>1 т = 1&nbsp;000 кг</p></div>
+      <div><h4>Гроші</h4>
+        <p>1 грн = 100 коп.</p>
+        <h4 style="margin-top:10px">Як виділити більші одиниці</h4>
+        <p style="font-size:16px">Скільки нулів у «1 т = 1&nbsp;000 кг», стільки цифр відокремлюємо справа: 51&nbsp;<b style="color:#c8372d">030</b> кг = 51 т 30 кг</p></div>
+    </div>
+  </details>
+
+  <div class="progress">
+    <div class="ptext">
+      <span><span id="pLabel">Виконано:</span> <b id="pDone">0</b> з <b id="pTotal">0</b></span>
+      <span id="pScore"><span class="okc">правильно: <span id="pOk">0</span></span> · <span class="badc">помилок: <span id="pBad">0</span></span></span>
+    </div>
+    <div class="pbar" id="pbar"><i class="pok" id="barOk" style="width:0"></i><i class="pbad" id="barBad" style="width:0"></i></div>
+  </div>
+
+  <main id="app"></main>
+
+  <div class="bottom">
+    <button class="btn big red" id="finishBtn">Завершити і побачити підсумок</button>
+  </div>
+
+  <div id="summary" hidden></div>
+  </div>
+
+  <p class="foot">Числа в завданнях щоразу нові — у кожного учня свій варіант.</p>
+</div>
+
+<script>
+/* ================== ІКОНКИ (SVG, однаково на всіх пристроях) ================== */
+const ICON = {
+  check:'<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#2e9e5b"/><path d="M7 12.5l3.2 3.2L17.5 8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cross:'<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#d64545"/><path d="M8 8l8 8M16 8l-8 8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  bulb:'<svg width="22" height="22" viewBox="0 0 24 24"><g stroke="#e0a526" stroke-width="1.6" stroke-linecap="round"><path d="M12 1.5v2M3.5 5l1.5 1.4M20.5 5L19 6.4M1.5 12h2M20.5 12h2"/></g><path d="M12 5.5a5.5 5.5 0 0 0-3.2 10c.6.5.9 1.1.9 1.8h4.6c0-.7.3-1.3.9-1.8A5.5 5.5 0 0 0 12 5.5z" fill="#f8c943" stroke="#d4951a" stroke-width="1.2"/><rect x="9.6" y="18" width="4.8" height="1.6" rx=".6" fill="#c98a2b"/><rect x="10" y="20" width="4" height="1.6" rx=".6" fill="#c98a2b"/></svg>',
+  ruler:'<svg width="30" height="30" viewBox="0 0 32 32"><rect x="2" y="11" width="28" height="10" rx="2" fill="#f6cf6e" stroke="#c8372d" stroke-width="1.5"/><path d="M7 11v4M12 11v6M17 11v4M22 11v6M27 11v4" stroke="#c8372d" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  weight:'<svg width="30" height="30" viewBox="0 0 32 32"><circle cx="16" cy="7" r="3" fill="none" stroke="#c8372d" stroke-width="2"/><path d="M8 12h16l4 16H4z" fill="#f6cf6e" stroke="#c8372d" stroke-width="1.5" stroke-linejoin="round"/><text x="16" y="25" text-anchor="middle" font-size="8" font-weight="700" fill="#c8372d" font-family="Arial">кг</text></svg>',
+  coin:'<svg width="30" height="30" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#f6cf6e" stroke="#c8372d" stroke-width="1.5"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#e0a526" stroke-width="1.2"/><text x="16" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#c8372d" font-family="Arial">грн</text></svg>',
+  test:'<svg width="28" height="28" viewBox="0 0 32 32"><rect x="5" y="3" width="22" height="26" rx="3" fill="#fff" stroke="#c8372d" stroke-width="1.6"/><path d="M10 10l2 2 4-4M10 18l2 2 4-4" fill="none" stroke="#2e9e5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10h4M19 18h4" stroke="#c8372d" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  split:'<svg width="28" height="28" viewBox="0 0 32 32"><rect x="3" y="9" width="12" height="14" rx="3" fill="#f6cf6e" stroke="#c8372d" stroke-width="1.5"/><rect x="18" y="9" width="11" height="14" rx="3" fill="#fde8c4" stroke="#c8372d" stroke-width="1.5"/><path d="M16.5 5v22" stroke="#3a7bd5" stroke-width="2" stroke-dasharray="3 2"/></svg>',
+  scale:'<svg width="28" height="28" viewBox="0 0 32 32"><path d="M16 4v22M9 27h14M5 9h22" stroke="#c8372d" stroke-width="1.8" stroke-linecap="round"/><path d="M5 9l-3 8h6zM27 9l-3 8h6z" fill="#f6cf6e" stroke="#c8372d" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+  stairs:'<svg width="28" height="28" viewBox="0 0 32 32"><rect x="3" y="20" width="6" height="8" rx="1" fill="#fde8c4" stroke="#c8372d" stroke-width="1.3"/><rect x="10" y="15" width="6" height="13" rx="1" fill="#fbdc8e" stroke="#c8372d" stroke-width="1.3"/><rect x="17" y="10" width="6" height="18" rx="1" fill="#f6cf6e" stroke="#c8372d" stroke-width="1.3"/><rect x="24" y="4" width="6" height="24" rx="1" fill="#eeb84a" stroke="#c8372d" stroke-width="1.3"/></svg>',
+  book:'<svg width="28" height="28" viewBox="0 0 32 32"><path d="M16 8c-4-3-9-3-13-2v20c4-1 9-1 13 2 4-3 9-3 13-2V6c-4-1-9-1-13 2z" fill="#fff" stroke="#c8372d" stroke-width="1.6" stroke-linejoin="round"/><path d="M16 8v20" stroke="#c8372d" stroke-width="1.6"/><path d="M6 11c2.5-.5 5-.3 7 .7M6 15c2.5-.5 5-.3 7 .7M19 11.7c2-1 4.5-1.2 7-.7M19 15.7c2-1 4.5-1.2 7-.7" stroke="#e0a526" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  star:(on)=>`<svg width="46" height="46" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.4l1.3-6.5L2.5 9.3l6.6-.8z" fill="${on?'#f8c943':'#eee4cf'}" stroke="${on?'#d4951a':'#d6cbb0'}" stroke-width="1.3" stroke-linejoin="round"/></svg>`
+};
+document.getElementById('bandIcons').insertAdjacentHTML('afterbegin', ICON.ruler + ICON.weight);
+document.getElementById('bandIcons').insertAdjacentHTML('beforeend', ICON.coin);
+document.getElementById('cheatSum').insertAdjacentHTML('afterbegin', ICON.bulb);
+
+/* ================== ДОПОМІЖНЕ ================== */
+const R = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick = arr=>arr[R(0,arr.length-1)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;}
+const NB=' ';
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,NB);}
+const esc = s=>s.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const UN = {'мм':1,'см':10,'дм':100,'м':1000,'км':1000000,'г':1,'кг':1000,'ц':100000,'т':1000000,'коп.':1,'грн':100};
+const ORDER = {L:['км','м','дм','см','мм'], M:['т','ц','кг','г'], G:['грн','коп.']};
+
+function expr(parts){return parts.map(([v,u])=>`${fmt(v)}${NB}${u}`).join(' ');}
+function sumParts(parts,t){return parts.reduce((s,[v,u])=>s+v*UN[u]/UN[t],0);}
+
+/* «Пригадай»: співвідношення між сусідніми одиницями, що є в завданні */
+function relations(units){
+  const out=[];
+  Object.values(ORDER).forEach(list=>{
+    const us=list.filter(u=>units.includes(u));
+    for(let i=0;i<us.length-1;i++) out.push(`1 ${us[i]} = ${fmt(UN[us[i]]/UN[us[i+1]])} ${us[i+1]}`);
+  });
+  return out;
+}
+
+/* Пояснення «Міркую» для переведення складеного іменованого числа в одну одиницю */
+function explainToUnit(parts,t){
+  const lines=[], terms=[];
+  parts.forEach(([v,u])=>{
+    let val;
+    if(u===t){val=v;}
+    else if(UN[u]>UN[t]){const k=UN[u]/UN[t]; val=v*k; lines.push(`1 ${u} = ${fmt(k)} ${t}, тому ${fmt(v)} ${u} = ${fmt(val)} ${t}`);}
+    else {const k=UN[t]/UN[u]; val=v/k; lines.push(`1 ${t} = ${fmt(k)} ${u}, тому ${fmt(v)} ${u} = ${fmt(val)} ${t}`);}
+    terms.push(val);
+  });
+  if(terms.length>1) lines.push(`${terms.map(fmt).join(' + ')} = <b class="t">${fmt(terms.reduce((a,b)=>a+b,0))} ${t}</b>`);
+  return lines;
+}
+
+/* ================== 1. ТЕСТ ================== */
+const TBANK = {
+  easy:[
+    ()=>{const a=R(2,9),b=R(1,9);return {parts:[[a,'м'],[b,'см']],t:'см',wrong:[a*10+b,a*100+b*10,a*1000+b]};},
+    ()=>{const a=R(11,49),b=R(1,9);return {parts:[[a,'дм'],[b,'см']],t:'мм',wrong:[a*10+b,a*100+b,a*1000+b*10]};},
+    ()=>{const a=R(2,15),b=R(5,95);return {parts:[[a,'км'],[b,'м']],t:'м',wrong:[a*100+b,a*1000+b*10,a*10000+b]};},
+    ()=>{const a=R(11,39),b=R(11,95);return {parts:[[a,'ц'],[b,'кг']],t:'кг',wrong:[a*1000+b*10,a*10000+b,a*1000+b]};},
+    ()=>{const a=R(5,30),b=R(1,9);return {parts:[[a,'т'],[b,'ц']],t:'ц',wrong:[a*100+b,a*100+b*10,a*1000+b]};},
+    ()=>{const a=R(3,250),b=R(1,95);return {parts:[[a,'грн'],[b,'коп.']],t:'коп.',wrong:[a*10+b,a*100+b*10,a*1000+b]};},
+  ],
+  med:[
+    ()=>{const a=R(2,9),b=R(1,9);return {parts:[[a,'м'],[b,'см']],t:'мм',wrong:[a*10+b,a*100+b*10,a*1000+b]};},
+    ()=>{const a=R(2,60),b=R(5,95);return {parts:[[a,'т'],[b,'кг']],t:'кг',wrong:[a*100+b,a*1000+b*10,a*10000+b]};},
+    ()=>{const a=R(2,9),b=R(2,9)*10;return {parts:[[a,'дм'],[b,'см']],t:'см',wrong:[a*100+b,a*10+b/10,(a*10+b)*10]};},
+    ()=>{const a=R(10,40),b=R(11,39);return {parts:[[a,'т'],[b,'ц']],t:'ц',wrong:[a*100+b,a*1000+b,a+b]};},
+    ()=>{const a=R(20,90),b=R(2,9)*10;return {parts:[[a,'м'],[b,'дм']],t:'м',wrong:[a*10+b,a+b,a*10+b/10]};},
+  ],
+  hard:[
+    ()=>{const a=R(1,9),b=R(11,99)*10,c=R(11,90);return {parts:[[a,'км'],[b,'м'],[c,'см']],t:'см',wrong:[a*10000+b+c,a*10000+b*10+c,a*100000+b*10+c]};},
+    ()=>{const a=R(11,40),b=R(1,9),c=R(11,95);return {parts:[[a,'т'],[b,'ц'],[c,'кг']],t:'кг',wrong:[a*10000+b*100+c,a*10000+b*1000+c,a*1000+b*10+c]};},
+    ()=>{const a=R(11,50),b=R(2,9)*10,c=R(1,9);return {parts:[[a,'дм'],[b,'см'],[c,'мм']],t:'мм',wrong:[a*1000+b*10+c,a*1000+b+c,a*100+b+c]};},
+  ]
+};
+function mkMC(g,hard){
+  const correct=sumParts(g.parts,g.t);
+  let wrong=[...new Set(g.wrong)].filter(w=>w>0&&Number.isInteger(w)&&w!==correct);
+  const extra=[correct*10,correct+UN[g.parts[0][1]]/UN[g.t],correct*100];
+  while(wrong.length<2){const e=extra.shift(); if(!wrong.includes(e)&&e!==correct) wrong.push(e);}
+  wrong=shuffle(wrong).slice(0,2);
+  return {type:'mc',hard,q:`${expr(g.parts)} = …${NB}${g.t}`,t:g.t,correct,options:shuffle([correct,...wrong]),
+    units:[...g.parts.map(p=>p[1]),g.t],explain:explainToUnit(g.parts,g.t)};
+}
+
+/* ================== 2. ВИДІЛИ БІЛЬШІ ОДИНИЦІ ================== */
+const SPLIT=[['т','кг'],['ц','кг'],['кг','г'],['грн','коп.'],['м','см'],['км','м'],['м','дм']];
+function digitsWord(d){return d===1?'1 останню цифру':`${d} останні цифри`;}
+function mkSplit([big,small]){
+  const r=UN[big]/UN[small];
+  let a,b;
+  if(r===10){a=R(51,999);b=R(1,9);}
+  else if(r===100){a=R(12,999);b=Math.random()<.5?R(1,9):R(10,99);}
+  else {a=R(2,520);b=Math.random()<.5?R(1,99):R(100,999);}
+  const N=a*r+b, d=String(r).length-1, s=String(N);
+  const head=s.slice(0,-d), tail=s.slice(-d);
+  return {type:'fill',lhs:`${fmt(N)}${NB}${small}`,groups:[[{v:a,u:big},{v:b,u:small}]],units:[big,small],
+    explain:[`1 ${big} = ${fmt(r)} ${small} — у числі ${fmt(r)} ${d===1?'1 нуль':d+' нулі'}.`,
+      `Відокремлюємо справа ${digitsWord(d)}: <span class="split">${fmt(+head)}${NB}<b>${tail}</b></span>`,
+      `${fmt(N)} ${small} = <b class="t">${fmt(a)} ${big} ${b} ${small}</b>`]};
+}
+function mkChain(){
+  const k=R(0,2);
+  if(k===0){
+    const km=R(1,99), m=Math.random()<.5?R(1,99):R(100,999), M=km*1000+m;
+    return {type:'fill',hard:true,lhs:`${fmt(M*100)}${NB}см`,groups:[[{v:M,u:'м'}],[{v:km,u:'км'},{v:m,u:'м'}]],units:['км','м','см'],
+      explain:[`1 м = 100 см, тому ${fmt(M*100)} см = ${fmt(M)} м (відкидаємо 2 нулі).`,
+        `1 км = 1${NB}000 м: <span class="split">${fmt(km)}${NB}<b>${String(M).slice(-3)}</b></span> м = <b class="t">${km} км ${m} м</b>`]};
+  }
+  if(k===1){
+    const m=R(101,999);
+    return {type:'fill',hard:true,lhs:`${fmt(m*1000)}${NB}мм`,groups:[[{v:m*100,u:'см'}],[{v:m*10,u:'дм'}],[{v:m,u:'м'}]],units:['м','дм','см','мм'],
+      explain:[`1 см = 10 мм: ${fmt(m*1000)} мм = ${fmt(m*100)} см`,`1 дм = 10 см: ${fmt(m*100)} см = ${fmt(m*10)} дм`,`1 м = 10 дм: ${fmt(m*10)} дм = <b class="t">${fmt(m)} м</b>`]};
+  }
+  const t=R(2,900);
+  return {type:'fill',hard:true,lhs:`${fmt(t*1000)}${NB}кг`,groups:[[{v:t*10,u:'ц'}],[{v:t,u:'т'}]],units:['т','ц','кг'],
+    explain:[`1 ц = 100 кг: ${fmt(t*1000)} кг = ${fmt(t*10)} ц`,`1 т = 10 ц: ${fmt(t*10)} ц = <b class="t">${fmt(t)} т</b>`]};
+}
+
+/* ================== 3. ПОРІВНЯЙ ================== */
+const CMP=[['км','м'],['м','см'],['т','кг'],['ц','кг'],['грн','коп.'],['т','ц'],['м','дм'],['кг','г']];
+function mkCmp([big,small]){
+  const r=UN[big]/UN[small];
+  let a,b;
+  if(r===10){a=R(2,60);b=R(1,9);}
+  else if(r===100){a=R(2,99);b=R(1,99);}
+  else {a=R(2,30);b=Math.random()<.5?R(10,99):R(101,999);}
+  const L=a*r+b;
+  const traps=[a*r+b*10, r>=100?a*(r/10)+b:a+b, L+R(1,9)*(r>=100?10:1), L-R(1,9)].filter(x=>x>0&&x!==L);
+  const S=Math.random()<.35?L:pick(traps);
+  const comp=expr([[a,big],[b,small]]), single=`${fmt(S)}${NB}${small}`;
+  const swap=Math.random()<.5;
+  const lv=swap?S:L, rv=swap?L:S;
+  const rel=lv<rv?'<':lv>rv?'>':'=';
+  return {type:'cmp',left:swap?single:comp,right:swap?comp:single,rel,units:[big,small],
+    explain:[`${comp} = ${fmt(L)} ${small}`,`<b class="t">${fmt(lv)} ${small} ${esc(rel)} ${fmt(rv)} ${small}</b>, тому ставимо знак «${esc(rel)}»`]};
+}
+
+/* ================== 4. УПОРЯДКУЙ ================== */
+function uniqueCards(gens){
+  let cards;
+  do{cards=gens.map(g=>g());}while(new Set(cards.map(c=>c.v)).size<cards.length);
+  return cards;
+}
+function mkOrderMass(){
+  const types=[
+    ()=>{const k=R(1,4);return {t:`${k}${NB}т`,v:k*1e6};},
+    ()=>{const n=R(11,49)*100;return {t:`${fmt(n)}${NB}кг`,v:n*1000};},
+    ()=>{const n=R(100,999),m=R(1,9)*100;return {t:`${n}${NB}кг ${m}${NB}г`,v:n*1000+m};},
+    ()=>{const n=R(20,900)*1000;return {t:`${fmt(n)}${NB}г`,v:n};},
+    ()=>{const c=R(2,45);return {t:`${c}${NB}ц`,v:c*1e5};},
+  ];
+  const cards=shuffle(uniqueCards(shuffle(types).slice(0,4)));
+  const sorted=[...cards].sort((x,y)=>x.v-y.v);
+  return {type:'order',dir:'asc',hard:false,prompt:'Розстав масу в порядку <b>зростання</b> — від найменшої до найбільшої.',
+    cards,explain:[...cards.map(c=>`${c.t} = ${fmt(c.v)} г`),`<b class="t">${sorted.map(c=>c.t).join(' &lt; ')}</b>`]};
+}
+function mkOrderLen(){
+  const types=[
+    ()=>{const k=R(1,3);return {t:`${k}${NB}км`,v:k*100000};},
+    ()=>{const n=R(150,2900);return {t:`${fmt(n)}${NB}м`,v:n*100};},
+    ()=>{const n=R(100,999),c=R(1,99);return {t:`${n}${NB}м ${c}${NB}см`,v:n*100+c};},
+    ()=>{const d=R(100,2500)*10;return {t:`${fmt(d)}${NB}дм`,v:d*10};},
+    ()=>{const c=R(1000,30000)*10;return {t:`${fmt(c)}${NB}см`,v:c};},
+  ];
+  const cards=shuffle(uniqueCards(shuffle(types).slice(0,4)));
+  const sorted=[...cards].sort((x,y)=>y.v-x.v);
+  return {type:'order',dir:'desc',hard:true,prompt:'Розстав довжини в порядку <b>спадання</b> — від найбільшої до найменшої.',
+    cards,explain:[...cards.map(c=>`${c.t} = ${fmt(c.v)} см`),`<b class="t">${sorted.map(c=>c.t).join(' &gt; ')}</b>`]};
+}
+
+/* ================== 5. ЗАДАЧІ ================== */
+const ORD_INS={5:'п’ятим',6:'шостим',7:'сьомим',8:'восьмим',9:'дев’ятим',10:'десятим',11:'одинадцятим',12:'дванадцятим'};
+function lenStr(L){if(L<1000)return `${L} м`;return L%1000?`${Math.floor(L/1000)} км ${L%1000} м`:`${L/1000} км`;}
+const PROBLEMS=[
+  {g:'money',f:()=>{
+    const D=pick(['Олег','Павло','Андрій','Тарас']), n=R(2,3), s=R(45,95), C=s*(n+1);
+    return {text:`«Карпулінг» — це коли люди їдуть одним автомобілем і порівну ділять витрати на пальне. ${D} щодня підвозив ${n===2?'двох':'трьох'} колег на роботу і додому. За робочий тиждень він витратив на пальне ${fmt(C)} грн.`,
+      rows:[{label:'Скільки гривень заплатив кожен?',fields:[{v:s,u:'грн'}]},{label:`Скільки гривень зекономив ${D}?`,fields:[{v:C-s,u:'грн'}]}],
+      explain:[`В автомобілі їхали ${n} + 1 = ${n+1} людини.`,`Кожен заплатив: ${fmt(C)} : ${n+1} = <b class="t">${s} грн</b>.`,`${D} зекономив: ${fmt(C)} − ${s} = <b class="t">${C-s} грн</b>.`]};}},
+  {g:'money',f:()=>{
+    const it=pick([['Один зошит','зошити'],['Одна ручка','ручки'],['Один олівець','олівці'],['Одна лінійка','лінійки']]);
+    const a=R(5,40), b=R(1,19)*5, n=R(2,4), P=a*100+b, T=P*n;
+    if(T%100===0) return null;
+    return {text:`${it[0]} коштує ${a} грн ${b} коп. Скільки коштують ${n} такі ${it[1]}?`,
+      rows:[{label:'Відповідь:',fields:[{v:Math.floor(T/100),u:'грн'},{v:T%100,u:'коп.'}]}],
+      explain:[`${a} грн ${b} коп. = ${fmt(P)} коп.`,`${fmt(P)} · ${n} = ${fmt(T)} коп. = <b class="t">${Math.floor(T/100)} грн ${T%100} коп.</b>`]};}},
+  {g:'line',f:()=>{
+    const d=pick([25,40,50,100]);
+    const Ls=[500,600,800,1000,1200,1500,2000].filter(L=>L%d===0&&L/d<=40&&L/d>=8);
+    const L=pick(Ls), n=L/d, k=R(5,Math.min(12,n));
+    return {text:`Рибалки змагаються. Вони відміряли ${lenStr(L)} берега річки і розташувалися вздовж нього: перший — на самому початку, останній — у самому кінці. Відстань між сусідніми рибалками — ${d} м.`,
+      rows:[{label:'Скільки було рибалок?',fields:[{v:n+1,u:'рибалок'}]},{label:`Яка відстань між першим і ${ORD_INS[k]} рибалками?`,fields:[{v:(k-1)*d,u:'м'}]}],
+      explain:[...(L>=1000?[`${lenStr(L)} = ${fmt(L)} м.`]:[]),`Проміжків між рибалками: ${fmt(L)} : ${d} = ${n}.`,`Рибалок на 1 більше, ніж проміжків: ${n} + 1 = <b class="t">${n+1}</b>.`,`Між першим і ${ORD_INS[k]} — ${k-1} проміжків: ${d} · ${k-1} = <b class="t">${(k-1)*d} м</b>.`]};}},
+  {g:'line',f:()=>{
+    const L=R(10,60)*10, d=pick([20,25,40,50]), n=L*100/d;
+    return {text:`Для змагань уздовж прямої бігової доріжки завдовжки ${L} м розставили прапорці на відстані ${d} см один від одного. Перший прапорець стоїть на старті, останній — на фініші.`,
+      rows:[{label:'Скільки всього прапорців?',fields:[{v:n+1,u:'прапорців'}]}],
+      explain:[`${L} м = ${fmt(L*100)} см.`,`Проміжків: ${fmt(L*100)} : ${d} = ${fmt(n)}.`,`Прапорців на 1 більше, ніж проміжків: ${fmt(n)} + 1 = <b class="t">${fmt(n+1)}</b>.`]};}},
+  {g:'loop',f:()=>{
+    const d=R(21,39)*5, n0=Math.ceil(1000/d), n=R(n0,n0+6), P=n*d;
+    if(P%1000===0) return null;
+    return {text:`Навколо озера на березі сидять рибалки — усього ${n}. Відстань між сусідніми рибалками — ${d} м.`,
+      rows:[{label:'Яка довжина берега навколо озера?',fields:[{v:Math.floor(P/1000),u:'км'},{v:P%1000,u:'м'}]}],
+      explain:[`Рибалки сидять по колу (замкнена лінія), тому проміжків стільки ж, скільки рибалок: ${n}.`,`${d} · ${n} = ${fmt(P)} м = <b class="t">${Math.floor(P/1000)} км ${P%1000} м</b>.`]};}},
+  {g:'mass',f:()=>{
+    const a=pick([150,200,250,300,400,450,600]), k=R(3,9), lt=R(1,2), lk=R(1,9)*100, T=a*k+lt*1000+lk;
+    if(T%1000===0) return null;
+    return {text:`Будівельна компанія привезла пісок на дитячий майданчик. Заповнили ${k} пісочниць, по ${a} кг у кожну, і ще залишилось ${lt} т ${lk} кг піску.`,
+      rows:[{label:'Скільки піску привезли?',fields:[{v:Math.floor(T/1000),u:'т'},{v:T%1000,u:'кг'}]}],
+      explain:[`У пісочницях: ${a} · ${k} = ${fmt(a*k)} кг.`,`Залишилось: ${lt} т ${lk} кг = ${fmt(lt*1000+lk)} кг.`,`${fmt(a*k)} + ${fmt(lt*1000+lk)} = ${fmt(T)} кг = <b class="t">${Math.floor(T/1000)} т ${T%1000} кг</b>.`]};}},
+  {g:'mass',f:()=>{
+    const A=R(1,6), B=R(1,9)*100, m=pick([100,200,250,500]), kg=A*1000+B, g=kg*1000, c=g/m;
+    return {text:`Шоколадна мініфабрика виготовила за місяць ${A} т ${B} кг шоколаду. Скільки це плиток масою по ${m} г?`,
+      rows:[{label:'Відповідь:',fields:[{v:c,u:'плиток'}]}],
+      explain:[`${A} т ${B} кг = ${fmt(kg)} кг = ${fmt(g)} г.`,`${fmt(g)} : ${m} = <b class="t">${fmt(c)} плиток</b>.`]};}},
+  {g:'pages',hard:true,f:()=>{
+    const p=R(12,30), n=R(3,5), r=R(20,70), f=r+n*p, dni=n<5?'дні':'днів';
+    const st=k=>{const a=k%10,b=k%100;return `${k} ${a===1&&b!==11?'сторінка':a>=2&&a<=4&&(b<12||b>14)?'сторінки':'сторінок'}`;};
+    const ed=Math.random()<.5;
+    const text=ed
+      ?`Після першого дня роботи редакторці залишилось перевірити ${st(f)} рукопису, а ще через ${n} ${dni} — ${st(r)}. Скільки сторінок містить рукопис, якщо редакторка щодня перевіряла однакову кількість сторінок?`
+      :`Після першого дня читання Даринці залишилось прочитати ${st(f)} книжки, а ще через ${n} ${dni} — ${st(r)}. Скільки сторінок у книжці, якщо Даринка щодня читала однакову кількість сторінок?`;
+    return {text,rows:[{label:'Відповідь:',fields:[{v:f+p,u:'сторінок'}]}],
+      explain:[`За ${n} ${dni}: ${f} − ${r} = ${f-r} сторінок.`,`За 1 день: ${f-r} : ${n} = ${p} сторінок.`,`У перший день теж було ${p} сторінок, тому всього: ${f} + ${p} = <b class="t">${f+p} сторінок</b>.`]};}},
+  {g:'steps',f:()=>{
+    const a=R(2,10), b=R(105,950), M=a*1000+b;
+    return {text:`Дистанція шкільного забігу — ${a} км ${b} м. Під час ходьби 1 м у середньому дорівнює двом крокам. Скільки кроків містить уся дистанція?`,
+      rows:[{label:'Відповідь:',fields:[{v:M*2,u:'кроків'}]}],
+      explain:[`${a} км ${b} м = ${fmt(M)} м.`,`${fmt(M)} · 2 = <b class="t">${fmt(M*2)} кроків</b>.`]};}},
+];
+function mkProblems(count){
+  const out=[], used=new Set();
+  for(const p of shuffle(PROBLEMS.slice())){
+    if(out.length>=count) break;
+    if(used.has(p.g)) continue;
+    let it=null; while(!it) it=p.f();
+    it.type='prob'; it.hard=!!p.hard; used.add(p.g); out.push(it);
+  }
+  return out;
+}
+
+/* ================== ЗБІРКА ВСІХ ЗАВДАНЬ ================== */
+function buildAll(){
+  const t=[...shuffle(TBANK.easy.slice()).slice(0,2).map(f=>mkMC(f(),false)),
+           ...shuffle(TBANK.med.slice()).slice(0,2).map(f=>mkMC(f(),false)),
+           ...shuffle(TBANK.hard.slice()).slice(0,2).map(f=>mkMC(f(),true))];
+  return [
+    {title:'Математичний тест',icon:ICON.test,instr:'Обери правильну відповідь. Змінити її вже не можна — подумай добре!',instrTest:'Обери правильну відповідь.',items:t},
+    {title:'Виділи більші одиниці',icon:ICON.split,instr:'Впиши числа у віконця. Пригадай, скільки нулів у співвідношенні одиниць.',instrTest:'Впиши числа у віконця.',items:[...shuffle(SPLIT.slice()).slice(0,4).map(mkSplit),mkChain()]},
+    {title:'Порівняй',icon:ICON.scale,instr:'Переведи в однакові одиниці й обери знак: &lt;, = або &gt;.',instrTest:'Переведи в однакові одиниці й обери знак: &lt;, = або &gt;.',items:shuffle(CMP.slice()).slice(0,4).map(mkCmp)},
+    {title:'Упорядкуй',icon:ICON.stairs,instr:'Натискай на картки по черзі. Щоб забрати картку назад, натисни на неї в рядку відповідей.',instrTest:'Натискай на картки по черзі. Щоб забрати картку назад, натисни на неї в рядку відповідей.',items:[mkOrderMass(),mkOrderLen()]},
+    {title:'Задачі',icon:ICON.book,instr:'Розв’яжи задачу і впиши відповідь у віконця.',instrTest:'Розв’яжи задачу і впиши відповідь у віконця.',items:mkProblems(4)},
+  ];
+}
+
+const UNIT_RE=/(\d) (мм|см|дм|км|м|кг|г|ц|т|грн|коп\.)(?![а-яіїєґ’])/g;
+const nbu=s=>s.replace(UNIT_RE,'$1'+NB+'$2');
+
+/* ================== НАЛАШТУВАННЯ ДІАГНОСТУВАЛЬНОЇ РОБОТИ ================== */
+const SCRIPT_URL=''; // ← встав сюди адресу веб-застосунку Google Apps Script (закінчується на /exec)
+const WORK_NAME='Перетворення іменованих чисел';
+const K_DIAG='pin_diag', K_PEND='pin_pending';
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+if(location.hash==='#reset'){LS.del(K_DIAG);LS.del(K_PEND);}
+
+/* ================== ВІДОБРАЖЕННЯ ================== */
+let SECTIONS=[], results=[], CTLS=[], summaryShown=false;
+let MODE='trainer', TEST={started:false,finished:false,student:null,t0:0,elapsed:0}, payload=null, pendingMode=null;
+const PRAISE=['Правильно!','Молодець!','Чудово!','Так тримати!','Точно!'];
+const $=id=>document.getElementById(id);
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+const strip=s=>String(s).replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;| /g,' ').replace(/\s+/g,' ').trim();
+
+function feedback(card,ok,lines){
+  lines=lines.map(nbu);
+  card.classList.add(ok?'ok':'bad');
+  const hb=card.querySelector('.hintbox'); if(hb) hb.remove();
+  const hbtn=card.querySelector('.hintbtn'); if(hbtn) hbtn.remove();
+  const fb=card.querySelector('.fb');
+  fb.innerHTML = ok
+    ? `<div class="good">${ICON.check} ${pick(PRAISE)}</div>`
+    : `<div class="wrong">${ICON.cross} Є помилка. Міркуємо так:</div><div class="why">${lines.join('<br>')}</div>`;
+}
+
+function hintBtn(card,it,ctrl){
+  if(MODE!=='trainer'||!it.units) return;
+  const h=el('button','btn ghost hintbtn',ICON.bulb+' Пригадай');
+  h.onclick=()=>{
+    let hb=card.querySelector('.hintbox');
+    if(hb){hb.remove();return;}
+    ctrl.after(el('div','hintbox','<b>Пригадай:</b> '+relations(it.units).join('; ')));
+  };
+  ctrl.appendChild(h);
+}
+function tail(card){const c=el('div','ctrl');card.appendChild(c);card.appendChild(el('div','fb'));return c;}
+
+function fieldHTML(f,g){return `<span class="fld"><input class="num" type="text" inputmode="numeric" autocomplete="off" data-v="${f.v}" data-g="${g}" aria-label="${f.u}"><span class="u">${f.u}</span></span>`;}
+
+/* --- тест з варіантами --- */
+function renderMC(it,card,done){
+  card.appendChild(el('div','q',it.q));
+  const opts=el('div','opts'); card.appendChild(opts);
+  const ctl={sel:null,locked:false};
+  const btns=it.options.map((v,i)=>{
+    const b=el('button','opt',`<span class="let l${i}">${'абв'[i]}</span>${fmt(v)}${NB}${it.t}`);
+    b.onclick=()=>{
+      if(ctl.locked) return;
+      ctl.sel=i;
+      if(MODE==='test'){btns.forEach(x=>x.classList.toggle('sel',x===b)); updateProgress();}
+      else ctl.finish();
+    };
+    opts.appendChild(b); return b;
+  });
+  hintBtn(card,it,tail(card));
+  ctl.answered=()=>ctl.sel!==null;
+  ctl.finish=()=>{
+    if(ctl.locked) return; ctl.locked=true;
+    const v=ctl.sel===null?null:it.options[ctl.sel], ok=v===it.correct;
+    btns.forEach(x=>{x.disabled=true;x.classList.remove('sel');});
+    if(v!==null) btns[ctl.sel].classList.add(ok?'ok':'bad');
+    if(!ok) btns[it.options.indexOf(it.correct)].classList.add('right');
+    feedback(card,ok,it.explain); done(ok);
+  };
+  ctl.text=()=>strip(it.q);
+  ctl.picked=()=>ctl.sel===null?'—':`${fmt(it.options[ctl.sel])} ${it.t}`.replace(/ /g,' ');
+  ctl.right=()=>`${fmt(it.correct)} ${it.t}`.replace(/ /g,' ');
+  return ctl;
+}
+
+/* --- віконця (перетворення і задачі) --- */
+function wireInputs(card,it,done){
+  const ctrl=tail(card); let btn=null;
+  if(MODE==='trainer'){btn=el('button','btn','Перевірити'); ctrl.appendChild(btn);}
+  if(it.type!=='prob') hintBtn(card,it,ctrl);
+  const note=el('span','note'); ctrl.appendChild(note);
+  const inputs=[...card.querySelectorAll('input.num')];
+  const val=x=>x.value.replace(/\s/g,'');
+  const ctl={locked:false};
+  function check(){
+    if(ctl.locked) return;
+    if(inputs.some(x=>val(x)==='')){note.textContent='Заповни всі віконця.';return;}
+    ctl.finish();
+  }
+  inputs.forEach((inp,i)=>{
+    inp.addEventListener('input',()=>{inp.value=inp.value.replace(/[^\d\s]/g,''); note.textContent=''; if(MODE==='test') updateProgress();});
+    inp.addEventListener('keydown',e=>{
+      if(e.key!=='Enter') return; e.preventDefault();
+      if(i<inputs.length-1 && (MODE==='test' || !val(inputs[i+1]))) inputs[i+1].focus();
+      else if(MODE==='trainer') check();
+    });
+  });
+  if(btn) btn.onclick=check;
+  ctl.answered=()=>inputs.every(x=>val(x)!=='');
+  ctl.finish=()=>{
+    if(ctl.locked) return; ctl.locked=true;
+    let ok=true;
+    inputs.forEach(x=>{const good=val(x)!==''&&Number(val(x))===Number(x.dataset.v); x.classList.add(good?'ok':'bad'); x.disabled=true; if(!good) ok=false;});
+    if(btn) btn.disabled=true; note.textContent='';
+    feedback(card,ok,it.explain); done(ok);
+  };
+  const sep=it.type==='prob'?'; ':' = ';
+  const join=f=>{const g={};inputs.forEach(x=>{(g[x.dataset.g]=g[x.dataset.g]||[]).push(f(x)+' '+x.getAttribute('aria-label'));});return Object.values(g).map(a=>a.join(' ')).join(sep);};
+  ctl.picked=()=>join(x=>val(x)||'—');
+  ctl.right=()=>join(x=>fmt(x.dataset.v).replace(/\u00A0/g,' '));
+  return ctl;
+}
+function renderFill(it,card,done){
+  let h=`<span class="expr">${it.lhs}</span>`;
+  it.groups.forEach((g,gi)=>{h+=`<span class="grp"><span class="eq">=</span>`+g.map(f=>fieldHTML(f,gi)).join('')+`</span>`;});
+  card.appendChild(el('div','line',h));
+  const ctl=wireInputs(card,it,done);
+  ctl.text=()=>strip(it.lhs)+' = '+it.groups.map(g=>g.map(f=>'… '+f.u).join(' ')).join(' = ');
+  return ctl;
+}
+function renderProb(it,card,done){
+  card.appendChild(el('p','ptext2',it.text));
+  it.rows.forEach((r,ri)=>card.appendChild(el('div','prow',`<span class="lab"><b>${r.label}</b></span>`+r.fields.map(f=>fieldHTML(f,ri)).join(''))));
+  const ctl=wireInputs(card,it,done);
+  ctl.text=()=>strip(it.text)+' '+it.rows.map(r=>r.label).filter(l=>l!=='Відповідь:').join(' ');
+  return ctl;
+}
+
+/* --- порівняння --- */
+function renderCmp(it,card,done){
+  card.appendChild(el('div','cmp',`<span class="expr">${it.left}</span><span class="sign">?</span><span class="expr">${it.right}</span>`));
+  const sign=card.querySelector('.sign');
+  const signs=el('div','signs'); card.appendChild(signs);
+  const ctl={sel:null,locked:false};
+  const btns=['<','=','>'].map(s=>{
+    const b=el('button','',esc(s));
+    b.onclick=()=>{
+      if(ctl.locked) return;
+      ctl.sel=s;
+      if(MODE==='test'){sign.textContent=s; sign.classList.add('sel'); btns.forEach(x=>x.classList.toggle('sel',x===b)); updateProgress();}
+      else ctl.finish();
+    };
+    signs.appendChild(b); return b;
+  });
+  hintBtn(card,it,tail(card));
+  ctl.answered=()=>ctl.sel!==null;
+  ctl.finish=()=>{
+    if(ctl.locked) return; ctl.locked=true;
+    const ok=ctl.sel===it.rel;
+    sign.textContent=ctl.sel||'?'; sign.classList.remove('sel'); sign.classList.add(ok?'ok':'bad');
+    btns.forEach(x=>{x.disabled=true;x.classList.remove('sel');});
+    feedback(card,ok,it.explain); done(ok);
+  };
+  ctl.text=()=>strip(it.left)+' ? '+strip(it.right);
+  ctl.picked=()=>ctl.sel||'—';
+  ctl.right=()=>it.rel;
+  return ctl;
+}
+
+/* --- упорядкування --- */
+function renderOrder(it,card,done){
+  card.appendChild(el('div','q small',it.prompt));
+  const pool=el('div','pool'); card.appendChild(pool);
+  card.appendChild(el('div','slotlab',it.dir==='asc'?'Від найменшої → до найбільшої:':'Від найбільшої → до найменшої:'));
+  const slots=el('div','slots'); card.appendChild(slots);
+  const placed=[], ctl={locked:false};
+  const c=tail(card);
+  let btn=null;
+  if(MODE==='trainer'){btn=el('button','btn','Перевірити'); c.appendChild(btn);}
+  const reset=el('button','btn ghost','Почати спочатку'); c.appendChild(reset);
+  function draw(){
+    pool.innerHTML=''; slots.innerHTML='';
+    it.cards.forEach((cd,i)=>{
+      if(placed.includes(i)) return;
+      const b=el('button','chip',cd.t);
+      b.onclick=()=>{if(ctl.locked) return; placed.push(i); draw();};
+      pool.appendChild(b);
+    });
+    for(let k=0;k<it.cards.length;k++){
+      const s=el('button','slot',`<span class="pos">${k+1}</span>`);
+      if(placed[k]!==undefined){
+        s.insertAdjacentHTML('beforeend',it.cards[placed[k]].t); s.classList.add('filled');
+        s.onclick=()=>{if(ctl.locked) return; placed.splice(k,1); draw();};
+      }
+      slots.appendChild(s);
+    }
+    if(btn) btn.disabled=placed.length<it.cards.length;
+    if(MODE==='test') updateProgress();
+  }
+  const sorted=it.cards.map((cd,i)=>i).sort((x,y)=>it.dir==='asc'?it.cards[x].v-it.cards[y].v:it.cards[y].v-it.cards[x].v);
+  reset.onclick=()=>{if(ctl.locked) return; placed.length=0; draw();};
+  ctl.answered=()=>placed.length===it.cards.length;
+  ctl.finish=()=>{
+    if(ctl.locked) return; ctl.locked=true;
+    let ok=placed.length===it.cards.length;
+    [...slots.children].forEach((s,k)=>{
+      const good=placed[k]!==undefined && it.cards[placed[k]].v===it.cards[sorted[k]].v;
+      s.classList.remove('filled'); s.classList.add(good?'ok':'bad'); s.disabled=true; if(!good) ok=false;
+    });
+    pool.querySelectorAll('button').forEach(b=>b.disabled=true);
+    if(btn) btn.disabled=true; reset.disabled=true;
+    feedback(card,ok,it.explain); done(ok);
+  };
+  if(btn) btn.onclick=()=>{if(placed.length===it.cards.length) ctl.finish();};
+  const sg=it.dir==='asc'?' < ':' > ';
+  ctl.text=()=>strip(it.prompt)+' Картки: '+it.cards.map(cd=>strip(cd.t)).join(', ');
+  ctl.picked=()=>placed.length?placed.map(i=>strip(it.cards[i].t)).join(sg):'—';
+  ctl.right=()=>sorted.map(i=>strip(it.cards[i].t)).join(sg);
+  draw();
+  return ctl;
+}
+
+function renderItem(it,num,done){
+  const card=el('div','card');
+  card.appendChild(el('div','chead',`<span class="num">Завдання ${num}</span>`+(it.hard?`<span class="hard">${ICON.bulb} з зірочкою</span>`:'')));
+  const ctl=({mc:renderMC,fill:renderFill,cmp:renderCmp,order:renderOrder,prob:renderProb})[it.type](it,card,done);
+  ctl.card=card;
+  return ctl;
+}
+
+/* ================== ЗАПУСК ================== */
+function start(){
+  SECTIONS=buildAll(); results=[]; CTLS=[]; summaryShown=false;
+  const app=$('app'); app.innerHTML='';
+  const test=MODE==='test';
+  if(test) app.appendChild(el('p','testhint','Правильні відповіді <b>не показуються одразу</b>. Обрану відповідь (вона підсвічується <b>синім</b>) можна змінити, поки не натиснеш «Завершити роботу» внизу сторінки. Кнопка стане активною, коли ти відповіси на всі завдання.'));
+  let num=0;
+  SECTIONS.forEach((sec,si)=>{
+    const s=el('section','sec',`<h2><span class="sn">${si+1}</span>${sec.icon}${sec.title}</h2><p class="instr">${test?sec.instrTest:sec.instr}</p>`);
+    sec.items.forEach(it=>{
+      num++;
+      const r={si,ok:null}; results.push(r);
+      const ctl=renderItem(it,num,ok=>{r.ok=ok; updateProgress();});
+      CTLS.push(ctl); s.appendChild(ctl.card);
+    });
+    app.appendChild(s);
+  });
+  $('cheat').hidden=test;
+  const sm=$('summary'); sm.hidden=true; sm.innerHTML='';
+  const fb=$('finishBtn'); fb.hidden=false;
+  fb.textContent=test?'Завершити роботу':'Завершити і побачити підсумок';
+  updateProgress();
+}
+
+function updateProgress(){
+  const total=results.length;
+  $('pTotal').textContent=total;
+  const testRunning=MODE==='test'&&!TEST.finished;
+  $('pbar').classList.toggle('test',testRunning);
+  $('pScore').hidden=testRunning;
+  if(testRunning){
+    const a=CTLS.filter(c=>c.answered()).length;
+    $('pLabel').textContent='Відповіді:';
+    $('pDone').textContent=a;
+    $('barOk').style.width=(a/total*100)+'%'; $('barBad').style.width='0';
+    $('finishBtn').disabled=a<total;
+    return;
+  }
+  const ok=results.filter(r=>r.ok===true).length, bad=results.filter(r=>r.ok===false).length;
+  $('pLabel').textContent='Виконано:';
+  $('pDone').textContent=ok+bad;
+  $('pOk').textContent=ok;
+  $('pBad').textContent=bad;
+  $('barOk').style.width=(ok/total*100)+'%';
+  $('barBad').style.width=(bad/total*100)+'%';
+  $('finishBtn').disabled=false;
+  if(MODE==='trainer' && ok+bad===total && !summaryShown) setTimeout(()=>showSummary(true),900);
+}
+
+function showSummary(scroll){
+  summaryShown=true;
+  const total=results.length, ok=results.filter(r=>r.ok===true).length, skipped=results.filter(r=>r.ok===null).length;
+  const pct=ok/total*100;
+  const stars=pct>=90?3:pct>=70?2:pct>=50?1:0;
+  const msgT=pct>=90?'Чудово! Ти справжній майстер перетворень!'
+    :pct>=70?'Добре! Ще трішки уваги — і буде відмінно.'
+    :pct>=50?'Непогано, але варто ще потренуватися. Перечитай пояснення до помилок.'
+    :'Повтори таблицю одиниць і потренуйся ще — числа щоразу будуть нові.';
+  let rows='';
+  SECTIONS.forEach((sec,si)=>{
+    const rs=results.filter(r=>r.si===si), o=rs.filter(r=>r.ok===true).length;
+    rows+=`<div class="srow"><span>${si+1}. ${sec.title}</span><span class="val">${o} / ${rs.length}</span><div class="bar"><i style="width:${o/rs.length*100}%"></i></div></div>`;
+  });
+  const test=MODE==='test';
+  const sm=$('summary');
+  sm.innerHTML=`<h2>${test?'Результат роботи':'Підсумок'}</h2>
+    ${test?`<p class="who">${esc(TEST.student.name)}, ${esc(TEST.student.cls)}</p>`:''}
+    <div class="stars">${[0,1,2].map(i=>ICON.star(i<stars)).join('')}</div>
+    <div class="score">${ok} <small>з ${total}</small></div>
+    <div class="msg">${msgT}</div>
+    ${skipped?`<p class="skip">Без відповіді залишилось завдань: ${skipped}</p>`:''}
+    <div class="srows">${rows}</div>
+    ${test?'<p class="ss"></p><button class="btn big" id="againBtn">Потренуватися в режимі тренажера</button>'
+          :'<button class="btn big" id="againBtn">Пройти ще раз з новими числами</button>'}`;
+  sm.hidden=false;
+  $('finishBtn').hidden=true;
+  $('againBtn').onclick=()=>{ if(test) setMode('trainer'); else start(); window.scrollTo({top:0,behavior:'smooth'}); };
+  if(scroll) sm.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ================== ДІАГНОСТУВАЛЬНА РОБОТА ================== */
+function finishTest(){
+  if(TEST.finished||!CTLS.every(c=>c.answered())) return;
+  TEST.finished=true; TEST.started=false;
+  TEST.elapsed=Math.round((Date.now()-TEST.t0)/1000);
+  CTLS.forEach(c=>c.finish());
+  payload=buildPayload(); LS.set(K_PEND,JSON.stringify(payload));
+  updateProgress(); showSummary(true); send();
+}
+function buildPayload(){
+  const per=SECTIONS.map((s,si)=>results.filter(r=>r.si===si&&r.ok===true).length);
+  const cnt=SECTIONS.map(s=>s.items.length);
+  const G=per.reduce((a,b)=>a+b,0), M=results.length;
+  return {w:WORK_NAME,cls:TEST.student.cls,name:TEST.student.name,score:G,total:M,pct:Math.round(G/M*100),
+    t1:per[0]+per[1],t2:per[2]+per[3],t3:per[4],sec:TEST.elapsed,
+    answers:results.map((r,i)=>(i+1)+(r.ok?'+':'-')).join(' '),
+    sheet:'Результати Перетворення чисел',
+    parts:[`Перетворення (з ${cnt[0]+cnt[1]})`,`Порівняння (з ${cnt[2]+cnt[3]})`,`Задачі (з ${cnt[4]})`],
+    detailSheet:'Деталі Перетворення чисел',detailNote:'Розділ',
+    details:CTLS.map((c,i)=>[i+1,c.text(),c.picked(),c.right(),results[i].ok?'так':'ні',SECTIONS[results[i].si].title])};
+}
+function msg(x,retry){document.querySelectorAll('.ss').forEach(e=>{e.innerHTML=x+(retry?' <button class="btn ghost" onclick="send()">Надіслати ще раз</button>':'');});}
+function send(){
+  if(!payload) return;
+  msg('Надсилаю результат…');
+  if(!SCRIPT_URL){msg('Адресу скрипта не вказано (константа SCRIPT_URL у коді сторінки).',1);return;}
+  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(()=>{LS.del(K_PEND);msg('Результат надіслано вчителю.');})
+    .catch(()=>msg('Не вдалося надіслати результат. Перевір інтернет.',1));
+}
+function requestMode(m){
+  if(MODE==='test'&&TEST.started&&!TEST.finished){
+    if(m==='test') return;
+    pendingMode=m; $('leaveWarn').hidden=false; $('leaveWarn').scrollIntoView({behavior:'smooth',block:'center'}); return;
+  }
+  if(m===MODE&&m==='trainer') return;
+  setMode(m);
+}
+function setMode(m){
+  $('leaveWarn').hidden=true; TEST.started=false;
+  MODE=m; $('bandTitle').textContent=m==='test'?'Діагностувальна робота':'Тренажер';
+  $('mTrain').classList.toggle('on',m==='trainer'); $('mTest').classList.toggle('on',m==='test');
+  if(m==='test'){
+    const used=LS.get(K_DIAG);
+    $('reg').hidden=false; $('regform').hidden=!!used; $('blocked').hidden=!used; $('work').hidden=true;
+    $('regerr').textContent='';
+    if(used&&LS.get(K_PEND)){try{payload=JSON.parse(LS.get(K_PEND)); msg('Результат цієї роботи ще не надіслано вчителю.',1);}catch(e){}}
+    else msg('');
+  } else {
+    $('reg').hidden=true; $('work').hidden=false; TEST.finished=false; start();
+  }
+}
+function startTest(){
+  const f=$('sn').value.trim(), n=$('nm').value.trim(), c=$('cls').value.trim();
+  if(!f||!n||!c){$('regerr').textContent='Заповни прізвище, ім’я та клас.';return;}
+  if(LS.get(K_DIAG)){setMode('test');return;}
+  LS.set(K_DIAG,JSON.stringify({n:f+' '+n,c,t:Date.now()}));
+  TEST={started:true,finished:false,student:{name:f+' '+n,cls:c},t0:Date.now(),elapsed:0};
+  $('reg').hidden=true; $('work').hidden=false; start(); window.scrollTo(0,0);
+}
+
+$('mTrain').onclick=()=>requestMode('trainer');
+$('mTest').onclick=()=>requestMode('test');
+$('leaveYes').onclick=()=>setMode(pendingMode||'trainer');
+$('leaveNo').onclick=()=>{$('leaveWarn').hidden=true;};
+$('startBtn').onclick=startTest;
+$('finishBtn').onclick=()=>{ if(MODE==='test'&&!TEST.finished) finishTest(); else showSummary(true); };
+setMode('trainer');
+
+</script>
+</body>
+</html>
